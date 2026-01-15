@@ -5,6 +5,7 @@ import WhyChooseUs from "@/components/WhyChooseUs";
 import Locations from "@/components/Locations";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
+import FloatingChatButton from "@/components/FloatingChatButton";
 
 const Index = () => {
   return (
@@ -16,6 +17,7 @@ const Index = () => {
       <Locations />
       <Contact />
       <Footer />
+      <FloatingChatButton />
     </div>
   );
 };
