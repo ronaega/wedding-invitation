@@ -1,3 +1,4 @@
+import { Search, MessageCircle } from "lucide-react";
 import logo from "@/assets/logo-rayaliwa.png";
 
 const Navbar = () => {
@@ -24,12 +25,26 @@ const Navbar = () => {
             </a>
           </div>
 
-          <a
-            href="#contact"
-            className="hidden md:inline-flex px-5 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-md hover:bg-primary/90 transition-colors"
-          >
-            Get in Touch
-          </a>
+          <div className="flex items-center gap-3">
+            <button
+              className="p-2 rounded-full text-foreground/70 hover:text-primary hover:bg-primary/10 transition-colors"
+              aria-label="Search"
+            >
+              <Search className="h-5 w-5" />
+            </button>
+            <button
+              className="p-2 rounded-full text-foreground/70 hover:text-primary hover:bg-primary/10 transition-colors"
+              aria-label="Chat with us"
+            >
+              <MessageCircle className="h-5 w-5" />
+            </button>
+            <a
+              href="#contact"
+              className="hidden md:inline-flex px-5 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-md hover:bg-primary/90 transition-colors"
+            >
+              Get in Touch
+            </a>
+          </div>
         </div>
       </div>
     </nav>
