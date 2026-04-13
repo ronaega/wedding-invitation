@@ -4,7 +4,7 @@ import OrnamentDivider from "@/components/OrnamentDivider";
 const milestones = [
   { year: "2015", title: "First Meeting", desc: "Staring each other for the first time." },
   { year: "2018", title: "On the Same Duty", desc: "Struggling in the same community and experiencing many teamworks." },
-  { year: "2022", title: "The İstandul Memory", desc: "Having in the most romantic city in the world." },
+  { year: "2022", title: "The İstanbul Memory", desc: "Having in the most romantic city in the world." },
   { year: "2025", title: "The Proposal", desc: "A proposal called 'Khitbah' at Bapak Budianto's house." },
   { year: "2026", title: "The Wedding", desc: "Uniting two families, two characters, and two hearts forever." },
 ];
