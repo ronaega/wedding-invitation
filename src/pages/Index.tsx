@@ -7,6 +7,7 @@ import EventSlide from "@/components/sections/EventSlide";
 import IllustrationSlide from "@/components/sections/IllustrationSlide";
 import LoveStorySlide from "@/components/sections/LoveStorySlide";
 import HowWeMetSlide from "@/components/sections/HowWeMetSlide";
+import LocationSlide from "@/components/sections/LocationSlide";
 import CulturalSlide from "@/components/sections/CulturalSlide";
 import ClosingSlide from "@/components/sections/ClosingSlide";
 
@@ -49,6 +50,7 @@ const Index = () => {
             <IllustrationSlide />
             <LoveStorySlide />
             <HowWeMetSlide />
+            <LocationSlide />
             <ClosingSlide />
           </motion.div>
         )}

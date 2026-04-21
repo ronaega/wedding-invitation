@@ -25,7 +25,7 @@ const HowWeMetSlide = () => (
           In the summer of 2024, we finally found the courage to express what had long been in our hearts and made the beautiful decision to walk this life together. A year later, in the summer of 2025, our families met and embraced one another, marking the beginning of a new chapter. With their blessings, our journey continues toward a lifetime of love and togetherness.
         </p>
         <p className="font-display italic text-right text-maroon mt-6">
-          — Rona & Ayu
+          — Rona & Lidya
         </p>
       </div>
     </motion.div>

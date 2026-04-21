@@ -52,7 +52,7 @@ const ClosingSlide = () => (
       </motion.div>
 
       <p className="font-script text-4xl md:text-5xl text-gold mt-8">
-        Rona & Ayu
+        Rona & Lidya
       </p>
       <p className="font-body text-xs tracking-[0.3em] uppercase text-muted-foreground mt-2">
         13 · 11 · 2026
