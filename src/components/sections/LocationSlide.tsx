@@ -25,9 +25,11 @@ const LocationSlide = () => {
         {/* 📍 Embedded Map */}
         <div className="w-full h-64 md:h-80 rounded-2xl overflow-hidden shadow-md mb-6">
           <iframe
-            src="https://www.google.com/maps?q=41.0082,28.9784&z=15&output=embed"
+            src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3951.1841784014878!2d111.69984099999999!3d-7.979906000000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zN8KwNTgnNDcuNyJTIDExMcKwNDEnNTkuNCJF!5e0!3m2!1sen!2str!4v1776759678820!5m2!1sen!2str"
             className="w-full h-full border-0"
             loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            allowFullScreen
           />
         </div>
 
@@ -42,6 +44,7 @@ const LocationSlide = () => {
         >
           Open in Google Maps
         </motion.a>
+        
       </motion.div>
     </section>
   );
