@@ -10,6 +10,7 @@ import HowWeMetSlide from "@/components/sections/HowWeMetSlide";
 import LocationSlide from "@/components/sections/LocationSlide";
 import CulturalSlide from "@/components/sections/CulturalSlide";
 import ClosingSlide from "@/components/sections/ClosingSlide";
+import MessageSlide from "@/components/sections/MessageSlide";
 
 const Index = () => {
   const [opened, setOpened] = useState(false);
@@ -51,6 +52,7 @@ const Index = () => {
             <LoveStorySlide />
             <HowWeMetSlide />
             <LocationSlide />
+            <MessageSlide />
             <ClosingSlide />
           </motion.div>
         )}
