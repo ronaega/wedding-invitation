@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import guests from "@/guests.json";
 
@@ -16,9 +15,7 @@ const MessageSlide = () => {
   const [text, setText] = useState("");
   const [guestCode, setGuestCode] = useState<string | null>(null);
 
-  const containerRef = useRef<HTMLDivElement | null>(null);
-
-  // 📌 Guest ID
+  // 📌 Get guest ID
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setGuestCode(params.get("id"));
@@ -31,7 +28,10 @@ const MessageSlide = () => {
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages" },
         (payload) => {
-          setMessages((prev) => [payload.new as Message, ...prev]);
+          const newMsg = payload.new as Message;
+
+          // 🌊 Add new message to TOP
+          setMessages((prev) => [newMsg, ...prev]);
         }
       )
       .subscribe();
@@ -41,7 +41,7 @@ const MessageSlide = () => {
     };
   }, []);
 
-  // 📌 Load messages
+  // 📌 Fetch messages
   const fetchMessages = async () => {
     const { data } = await supabase
       .from("messages")
@@ -103,27 +103,27 @@ const MessageSlide = () => {
         </button>
       </div>
 
-      {/* 🌊 LIVE WALL + SWIPE */}
-      <div
-        ref={containerRef}
-        className="w-full max-w-lg overflow-x-auto flex gap-4 px-2 snap-x snap-mandatory scroll-smooth"
-      >
+      {/* 🌊 LIVE WALL */}
+      <div className="w-full max-w-lg space-y-4">
+
         {messages.length === 0 ? (
-          <p className="text-muted-foreground text-sm italic w-full text-center">
-            No messages yet… be the first 🤍
+          <p className="text-muted-foreground text-sm italic">
+            No messages yet… be the first to leave a blessing 🤍
           </p>
         ) : (
-          messages.map((m) => (
-            <motion.div
+          messages.map((m, index) => (
+            <div
               key={m.id}
-              whileTap={{ scale: 0.97 }}
-              className="min-w-[85%] snap-center bg-white/60 backdrop-blur-xl border border-white/30 shadow-xl rounded-3xl p-6 text-left flex-shrink-0"
+              className="relative bg-white/60 backdrop-blur-xl border border-white/30 shadow-xl rounded-3xl p-5 text-left transition-all duration-500 animate-fade-in"
+              style={{
+                transform: `translateY(${index * 0}px)`,
+              }}
             >
               {/* glow */}
               <div className="absolute inset-0 bg-gradient-to-br from-gold/10 to-transparent opacity-60 rounded-3xl" />
 
               <div className="relative">
-                <p className="text-sm text-gray-700 leading-relaxed mb-4 font-light">
+                <p className="text-sm text-gray-700 leading-relaxed mb-3 font-light">
                   “{m.message}”
                 </p>
 
@@ -131,7 +131,7 @@ const MessageSlide = () => {
                   — {m.name}
                 </p>
               </div>
-            </motion.div>
+            </div>
           ))
         )}
       </div>
