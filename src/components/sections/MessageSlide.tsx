@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import guests from "@/data/guests.json";
+import guests from "@/guests.json";
 
 interface Message {
   id: string;
