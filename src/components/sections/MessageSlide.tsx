@@ -6,7 +6,6 @@ interface Message {
   id: string;
   name: string;
   message: string;
-  guest_code?: string;
   created_at?: string;
 }
 
@@ -14,6 +13,7 @@ const MessageSlide = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [text, setText] = useState("");
   const [guestCode, setGuestCode] = useState<string | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   // 📌 Get guest ID
   useEffect(() => {
@@ -22,16 +22,14 @@ const MessageSlide = () => {
 
     fetchMessages();
 
+    // 🔥 realtime
     const channel = supabase
       .channel("messages-realtime")
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages" },
         (payload) => {
-          const newMsg = payload.new as Message;
-
-          // 🌊 Add new message to TOP
-          setMessages((prev) => [newMsg, ...prev]);
+          setMessages((prev) => [payload.new as Message, ...prev]);
         }
       )
       .subscribe();
@@ -41,7 +39,18 @@ const MessageSlide = () => {
     };
   }, []);
 
-  // 📌 Fetch messages
+  // 🎠 auto carousel
+  useEffect(() => {
+    if (messages.length === 0) return;
+
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % messages.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [messages]);
+
+  // 📌 fetch messages
   const fetchMessages = async () => {
     const { data } = await supabase
       .from("messages")
@@ -51,17 +60,17 @@ const MessageSlide = () => {
     if (data) setMessages(data);
   };
 
-  // 📌 Guest name
+  // 📌 guest name
   const getGuestName = (code: string | null) => {
     const guest = guests.find((g) => g.code === code);
     return guest ? guest.name : "Guest";
   };
 
-  // 📌 Send message
+  // 📌 send message (UNLIMITED)
   const sendMessage = async () => {
     if (!text || !guestCode) return;
 
-    const { data, error } = await supabase.from("messages").insert([
+    const { error } = await supabase.from("messages").insert([
       {
         guest_code: guestCode,
         name: getGuestName(guestCode),
@@ -69,15 +78,7 @@ const MessageSlide = () => {
       },
     ]);
 
-    console.log("📤 INSERT DATA:", data);
-    console.log("❌ INSERT ERROR:", error);
-
-    if (error) {
-      alert(error.message); // TEMP: show real reason
-      return;
-    }
-
-    setText("");
+    if (!error) setText("");
   };
 
   return (
@@ -89,7 +90,7 @@ const MessageSlide = () => {
           Wishes & Blessings
         </h2>
         <p className="text-muted-foreground text-sm tracking-widest uppercase">
-          Live Guest Wall
+          Guest Carousel
         </p>
       </div>
 
@@ -111,38 +112,57 @@ const MessageSlide = () => {
         </button>
       </div>
 
-      {/* 🌊 LIVE WALL */}
-      <div className="w-full max-w-lg space-y-4">
+      {/* 🎠 CAROUSEL */}
+      <div className="w-full max-w-lg relative h-52 flex items-center justify-center">
 
         {messages.length === 0 ? (
           <p className="text-muted-foreground text-sm italic">
-            No messages yet… be the first to leave a blessing 🤍
+            No messages yet… be the first 🤍
           </p>
         ) : (
           messages.map((m, index) => (
             <div
               key={m.id}
-              className="relative bg-white/60 backdrop-blur-xl border border-white/30 shadow-xl rounded-3xl p-5 text-left transition-all duration-500 animate-fade-in"
-              style={{
-                transform: `translateY(${index * 0}px)`,
-              }}
+              className={`absolute w-full transition-all duration-700 ease-in-out transform ${
+                index === activeIndex
+                  ? "opacity-100 scale-100 translate-y-0"
+                  : "opacity-0 scale-90 translate-y-4"
+              }`}
             >
-              {/* glow */}
-              <div className="absolute inset-0 bg-gradient-to-br from-gold/10 to-transparent opacity-60 rounded-3xl" />
+              <div className="relative bg-white/60 backdrop-blur-xl border border-white/30 shadow-2xl rounded-3xl p-6 text-left overflow-hidden">
 
-              <div className="relative">
-                <p className="text-sm text-gray-700 leading-relaxed mb-3 font-light">
-                  “{m.message}”
-                </p>
+                {/* glow */}
+                <div className="absolute inset-0 bg-gradient-to-br from-gold/10 to-transparent opacity-60" />
 
-                <p className="text-xs font-semibold text-maroon">
-                  — {m.name}
-                </p>
+                <div className="relative">
+                  <p className="text-sm text-gray-700 leading-relaxed mb-4 font-light">
+                    “{m.message}”
+                  </p>
+
+                  <p className="text-xs font-semibold text-maroon">
+                    — {m.name}
+                  </p>
+                </div>
+
               </div>
             </div>
           ))
         )}
       </div>
+
+      {/* 🔘 DOTS */}
+      {messages.length > 0 && (
+        <div className="flex gap-2 mt-6">
+          {messages.map((_, i) => (
+            <div
+              key={i}
+              className={`w-2 h-2 rounded-full transition-all ${
+                i === activeIndex ? "bg-maroon" : "bg-gray-300"
+              }`}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 };
