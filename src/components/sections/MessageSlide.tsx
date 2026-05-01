@@ -61,13 +61,21 @@ const MessageSlide = () => {
   const sendMessage = async () => {
     if (!text || !guestCode) return;
 
-    await supabase.from("messages").insert([
+    const { data, error } = await supabase.from("messages").insert([
       {
         guest_code: guestCode,
         name: getGuestName(guestCode),
         message: text,
       },
     ]);
+
+    console.log("📤 INSERT DATA:", data);
+    console.log("❌ INSERT ERROR:", error);
+
+    if (error) {
+      alert(error.message); // TEMP: show real reason
+      return;
+    }
 
     setText("");
   };
