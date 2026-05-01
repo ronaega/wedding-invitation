@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import guests from "@/guests.json";
+import guests from "@/data/guests.json";
 
 interface Message {
   id: string;
   name: string;
   message: string;
+  guest_code?: string;
   created_at?: string;
 }
 
@@ -14,15 +15,17 @@ const MessageSlide = () => {
   const [text, setText] = useState("");
   const [guestCode, setGuestCode] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [hasSent, setHasSent] = useState(false);
 
   // 📌 Get guest ID from URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    setGuestCode(params.get("id"));
+    const id = params.get("id");
+    setGuestCode(id);
 
     fetchMessages();
 
-    // 🔥 REAL-TIME LISTENER
+    // 🔥 REALTIME
     const channel = supabase
       .channel("messages-realtime")
       .on(
@@ -32,32 +35,47 @@ const MessageSlide = () => {
           setMessages((prev) => [payload.new as Message, ...prev]);
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log("Realtime status:", status);
+      });
 
     return () => {
       supabase.removeChannel(channel);
     };
   }, []);
 
-  // 📌 Auto carousel rotation
+  // 🎠 Auto carousel
   useEffect(() => {
     if (messages.length === 0) return;
 
     const interval = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % messages.length);
-    }, 4000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [messages]);
 
-  // 📌 Load messages
+  // 📌 Fetch messages
   const fetchMessages = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("messages")
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (data) setMessages(data);
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    if (data) {
+      setMessages(data);
+
+      // 🚫 check if this guest already sent message
+      const existing = data.find((m) => m.guest_code === guestCode);
+      if (existing) {
+        setHasSent(true);
+      }
+    }
   };
 
   // 📌 Get guest name
@@ -68,7 +86,7 @@ const MessageSlide = () => {
 
   // 📌 Send message
   const sendMessage = async () => {
-    if (!text || !guestCode) return;
+    if (!text || !guestCode || hasSent) return;
 
     const { error } = await supabase.from("messages").insert([
       {
@@ -80,41 +98,49 @@ const MessageSlide = () => {
 
     if (!error) {
       setText("");
+      setHasSent(true);
     }
   };
 
   return (
     <section className="section-slide flex flex-col items-center text-center px-6 py-16">
 
-      {/* Title */}
+      {/* 🌸 TITLE */}
       <div className="mb-10">
         <h2 className="font-display text-4xl md:text-5xl text-maroon mb-2">
           Wishes & Blessings
         </h2>
         <p className="text-muted-foreground text-sm tracking-widest uppercase">
-          Live Guestbook
+          Live Wedding Guestbook
         </p>
       </div>
 
-      {/* Input */}
-      <div className="w-full max-w-lg bg-white/60 backdrop-blur-md border border-white/40 shadow-xl rounded-2xl p-6 mb-10">
+      {/* 💌 INPUT CARD */}
+      <div className="w-full max-w-lg bg-white/60 backdrop-blur-xl border border-white/30 shadow-2xl rounded-3xl p-6 mb-10">
+
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
           className="w-full h-28 p-4 rounded-xl bg-white/70 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-gold/40 text-sm resize-none"
-          placeholder="Write your message..."
+          placeholder="Write your heartfelt message..."
+          disabled={hasSent}
         />
 
         <button
           onClick={sendMessage}
-          className="mt-4 w-full bg-maroon text-white py-2 rounded-xl hover:scale-[1.02] transition-all duration-200"
+          disabled={hasSent}
+          className={`mt-4 w-full py-2 rounded-xl transition-all duration-200 ${
+            hasSent
+              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+              : "bg-maroon text-white hover:scale-[1.02]"
+          }`}
         >
-          Send Blessing ✨
+          {hasSent ? "You already sent a blessing ❤️" : "Send Blessing ✨"}
         </button>
       </div>
 
-      {/* 🎠 CAROUSEL */}
-      <div className="w-full max-w-lg relative h-40 flex items-center justify-center">
+      {/* 🎠 PREMIUM CAROUSEL */}
+      <div className="w-full max-w-lg relative h-48 flex items-center justify-center mt-6">
 
         {messages.length === 0 ? (
           <p className="text-muted-foreground text-sm italic">
@@ -124,28 +150,34 @@ const MessageSlide = () => {
           messages.map((m, index) => (
             <div
               key={m.id}
-              className={`absolute w-full transition-all duration-700 ease-in-out transform ${
+              className={`absolute w-full transition-all duration-1000 ease-out transform ${
                 index === activeIndex
-                  ? "opacity-100 translate-y-0 scale-100"
-                  : "opacity-0 translate-y-4 scale-95"
+                  ? "opacity-100 scale-100 translate-y-0 blur-0"
+                  : "opacity-0 scale-90 translate-y-6 blur-sm"
               }`}
             >
-              <div className="bg-white/70 backdrop-blur-md border border-white/40 shadow-lg rounded-2xl p-6 text-left">
-                
-                <p className="text-sm text-gray-700 leading-relaxed mb-4">
-                  {m.message}
-                </p>
+              <div className="relative bg-white/60 backdrop-blur-xl border border-white/30 shadow-2xl rounded-3xl p-6 text-left overflow-hidden">
 
-                <p className="text-xs font-semibold text-maroon">
-                  — {m.name}
-                </p>
+                {/* glow effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-gold/10 to-transparent opacity-60" />
+
+                <div className="relative">
+                  <p className="text-sm text-gray-700 leading-relaxed mb-4 font-light">
+                    “{m.message}”
+                  </p>
+
+                  <p className="text-xs font-semibold text-maroon tracking-wide">
+                    — {m.name}
+                  </p>
+                </div>
+
               </div>
             </div>
           ))
         )}
       </div>
 
-      {/* Dots indicator */}
+      {/* 🔘 INDICATORS */}
       {messages.length > 0 && (
         <div className="flex gap-2 mt-6">
           {messages.map((_, i) => (
