@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import guests from "@/guests.json";
 
@@ -14,6 +15,7 @@ const MessageSlide = () => {
   const [text, setText] = useState("");
   const [guestCode, setGuestCode] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [showModal, setShowModal] = useState(false);
 
   // 📌 Get guest ID
   useEffect(() => {
@@ -49,6 +51,15 @@ const MessageSlide = () => {
 
     return () => clearInterval(interval);
   }, [messages]);
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowModal(false);
+    };
+
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, []);
 
   // 📌 fetch messages
   const fetchMessages = async () => {
@@ -149,6 +160,75 @@ const MessageSlide = () => {
           ))
         )}
       </div>
+
+      <button
+        onClick={() => setShowModal(true)}
+        className="mt-6 text-sm text-maroon underline hover:opacity-70 transition"
+      >
+        View All Messages
+      </button>
+
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowModal(false)} // 🧿 click outside
+          >
+            {/* Modal Card */}
+            <motion.div
+              onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside
+              initial={{ scale: 0.9, opacity: 0, y: 40 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 40 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+              className="relative w-full max-w-xl max-h-[80vh] bg-white/70 backdrop-blur-xl border border-white/30 shadow-2xl rounded-3xl overflow-hidden"
+            >
+
+              {/* Header (sticky) */}
+              <div className="sticky top-0 bg-white/60 backdrop-blur-md px-6 py-4 border-b border-white/30 flex justify-between items-center">
+                <h3 className="text-lg font-display text-maroon">
+                  Guest Messages
+                </h3>
+
+                {/* ❌ Close */}
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="text-gray-500 hover:text-black text-xl"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Content */}
+              <div
+                className="overflow-y-auto px-6 py-4 space-y-4"
+                style={{ maxHeight: "60vh" }}
+              >
+                {messages.map((m) => (
+                  <motion.div
+                    key={m.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                    className="bg-white/60 backdrop-blur-md border border-white/30 rounded-2xl p-4 shadow"
+                  >
+                    <p className="text-sm text-gray-700 mb-2 leading-relaxed">
+                      “{m.message}”
+                    </p>
+
+                    <p className="text-xs font-semibold text-maroon">
+                      — {m.name}
+                    </p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 🔘 DOTS */}
       {messages.length > 0 && (
