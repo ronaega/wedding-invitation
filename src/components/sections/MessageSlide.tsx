@@ -161,6 +161,20 @@ const MessageSlide = () => {
         )}
       </div>
 
+      {/* 🔘 DOTS */}
+      {messages.length > 0 && (
+        <div className="flex gap-2 mt-6">
+          {messages.map((_, i) => (
+            <div
+              key={i}
+              className={`w-2 h-2 rounded-full transition-all ${
+                i === activeIndex ? "bg-maroon" : "bg-gray-300"
+              }`}
+            />
+          ))}
+        </div>
+      )}
+
       <button
         onClick={() => setShowModal(true)}
         className="mt-6 text-sm text-maroon underline hover:opacity-70 transition"
@@ -230,19 +244,6 @@ const MessageSlide = () => {
         )}
       </AnimatePresence>
 
-      {/* 🔘 DOTS */}
-      {messages.length > 0 && (
-        <div className="flex gap-2 mt-6">
-          {messages.map((_, i) => (
-            <div
-              key={i}
-              className={`w-2 h-2 rounded-full transition-all ${
-                i === activeIndex ? "bg-maroon" : "bg-gray-300"
-              }`}
-            />
-          ))}
-        </div>
-      )}
     </section>
   );
 };
